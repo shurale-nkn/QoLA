@@ -1,0 +1,21 @@
+Subject: CK: fix FMHA bwd path with sink (TransformerEngine integration)
+
+fmha_bwd_kernel.hpp indexed sink_ptr as
+`i_batch * nhead + i_nhead`, treating it as a [batch, nhead] buffer.
+The sink buffer only holds one value per head (shape [nhead]), matching
+how fwd kernels already read it, so batch_id must not factor into the
+offset. Fixed to index by `i_nhead` alone, matching fwd.
+
+diff --git a/3rdparty/composable_kernel/include/ck_tile/ops/fmha/kernel/fmha_bwd_kernel.hpp b/3rdparty/composable_kernel/include/ck_tile/ops/fmha/kernel/fmha_bwd_kernel.hpp
+index 7aff21530..8ec6d9bad 100644
+--- a/3rdparty/composable_kernel/include/ck_tile/ops/fmha/kernel/fmha_bwd_kernel.hpp
++++ b/3rdparty/composable_kernel/include/ck_tile/ops/fmha/kernel/fmha_bwd_kernel.hpp
+@@ -1828,7 +1954,7 @@ struct FmhaBwdOGradDotOKernel
+         const LSEDataType sink_value =
+             kargs.sink_ptr != nullptr
+                 ? log2e_v<LSEDataType> *
+-                      kargs.sink_ptr[static_cast<long_index_t>(i_batch) * kargs.nhead + i_nhead]
++                      kargs.sink_ptr[static_cast<long_index_t>(i_nhead)]
+                 : -numeric<LSEDataType>::infinity();
+ 
+         // for simplicity, batch stride we just modify the pointer
