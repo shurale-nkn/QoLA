@@ -5,7 +5,7 @@ for TransformerEngine"), rebased onto AITER's vendored CK layout
 (3rdparty/composable_kernel/...). Adds a TE-specific receipt that
 generates a much smaller kernel set than receipt 600:
 
-  - fwd:  fp16/bf16 only, row vlayout, has_lse, no skip/sink/logits/qscale
+  - fwd:  fp16/bf16 only, row vlayout, has_lse, no skip/logits/qscale
   - bwd:  fp16/bf16 only, dropout in {no, dropout_wg32, dropout_wg16}
   - splitkv / batch_prefill / pagedkv_prefill: skipped (TE does not use)
 
@@ -50,7 +50,7 @@ diff --git a/3rdparty/composable_kernel/example/ck_tile/01_fmha/codegen/ops/fmha
 index c64a19104..ffa3403e8 100644
 --- a/3rdparty/composable_kernel/example/ck_tile/01_fmha/codegen/ops/fmha_fwd.py
 +++ b/3rdparty/composable_kernel/example/ck_tile/01_fmha/codegen/ops/fmha_fwd.py
-@@ -1455,6 +1455,20 @@ def get_product(receipt: int) -> Product:
+@@ -1455,6 +1455,19 @@ def get_product(receipt: int) -> Product:
              return cond
 
          return Product(name="aiter::mha_fwd C++ api integration", rule=fit)
@@ -63,7 +63,6 @@ index c64a19104..ffa3403e8 100644
 +            cond &= kernel_ctx.pipeline.F_qscale == "no"
 +            cond &= kernel_ctx.pipeline.F_lse == "t"
 +            cond &= kernel_ctx.pipeline.F_skip == "f"
-+            cond &= kernel_ctx.pipeline.F_sink == "f"
 +            cond &= kernel_ctx.pipeline.F_logits == "f"
 +            return cond
 +
@@ -108,7 +107,7 @@ index a5a2d0856..434e1cab7 100644
 -        + "  600-699: Only generate instance for aiter::mha_fwd && aiter::mha_fwd_splitkv && aiter::mha_bwd C++ api integration",
 +        + "  600-699: Only generate instance for aiter::mha_fwd && aiter::mha_fwd_splitkv && aiter::mha_bwd C++ api integration\n"
 +        + "  700: Only generate instance for TransformerEngine integration (fwd + bwd, fp16/bf16 only,\n"
-+        + "        invariants: row vlayout, has_lse, no skip/sink/logits/qscale)",
++        + "        invariants: row vlayout, has_lse, no skip/logits/qscale)",
      )
 
      parser.add_argument(
