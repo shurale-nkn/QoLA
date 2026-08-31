@@ -12,9 +12,4 @@ float mha_fwd(const aiter::mha_fwd_args& args, const ck_tile::stream_config& str
     return ::aiter::mha_fwd(args, stream_config);
 }
 
-int mha_fwd_calculate_num_splits(const aiter::mha_fwd_args& args)
-{
-    return ::aiter::mha_fwd_calculate_num_splits(args);
-}
-
 QOLA_NS_END
